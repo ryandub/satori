@@ -18,14 +18,18 @@
 Execute commands over ssh or using the python subprocess module.
 """
 
+import eventlet
+eventlet.monkey_patch()
+
 import logging
 import shlex
-import subprocess
 
+from satori.contrib import posix_subprocess
 from satori import errors
 from satori import smb
 from satori import ssh
 from satori import utils
+
 
 LOG = logging.getLogger(__name__)
 
@@ -124,11 +128,11 @@ class LocalShell(ShellMixin):
         """
         cwd = kwargs.get('cwd')
         with_exit_code = kwargs.get('with_exit_code')
-        spipe = subprocess.PIPE
+        spipe = posix_subprocess.PIPE
 
         cmd = shlex.split(command)
         LOG.debug("Executing `%s` on local machine", command)
-        result = subprocess.Popen(
+        result = posix_subprocess.Popen(
             cmd, stdout=spipe, stderr=spipe, cwd=cwd)
         out, err = result.communicate()
         resultdict = {

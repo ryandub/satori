@@ -27,9 +27,9 @@ import logging
 import os
 import re
 import shlex
-import subprocess
 import tempfile
 
+from satori.contrib import posix_subprocess
 from satori import errors
 from satori import ssh
 from satori import tunnel
@@ -188,7 +188,6 @@ class SMBClient(object):  # pylint: disable=R0902
         else:
             return False
 
-
     def _get_subcommand(self):
         """Return python psexec.py command string."""
         return self._command % (os.path.dirname(__file__),
@@ -218,11 +217,11 @@ class SMBClient(object):  # pylint: disable=R0902
             self._substituted_command = self._get_subcommand()
             LOG.info("Creating psexec process to %s running on %s:%s",
                      self._orig_host or self.host, self.host, self.port)
-            self._process = subprocess.Popen(
+            self._process = posix_subprocess.Popen(
                 shlex.split(self._substituted_command),
                 stdout=self._file_write,
-                stderr=subprocess.STDOUT,
-                stdin=subprocess.PIPE,
+                stderr=posix_subprocess.STDOUT,
+                stdin=posix_subprocess.PIPE,
                 close_fds=True,
                 universal_newlines=True,
                 bufsize=-1)
